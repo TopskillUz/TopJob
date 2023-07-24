@@ -1,0 +1,16 @@
+__pycache__
+venv/
+.idea
+deploy/.env.dev
+deploy/.env.prod
+.pytest_cache
+minio
+code/logs/debug.log
+
+
+docker-compose-dev.yml
+code/flower
+code/celerybeat-schedule
+last.backup
+identifier.sqlite
+.DS_Store
