@@ -10,7 +10,7 @@ from core.babel_config import _
 
 def add_handlers(app: FastAPI):
     @app.exception_handler(RequestValidationError)
-    def validation_exception_handler(request: Request, exc: RequestValidationError):
+    async def validation_exception_handler(request: Request, exc: RequestValidationError):
         translated_errors = []
         for pydantic_error in exc.errors():
             msg = _(pydantic_error.get("msg", _('Error message not detected')))

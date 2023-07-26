@@ -1,0 +1,58 @@
+version: "3.8"
+services:
+  topjob_db:
+    container_name: topjob_db
+    restart: always
+    image: postgres:15
+    env_file: ".env.prod"
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_HOST_AUTH_METHOD=md5
+    volumes:
+      - topjob_pgdata:/var/lib/postgresql/data:rw
+    expose:
+      - ${DATABASE_PORT}
+#    ports:
+#      - "5445:${DATABASE_PORT}"
+    networks:
+      - topjob_network
+
+  topjob_backend:
+    container_name: topjob_backend
+    restart: always
+    image: topjob_backend:latest
+    build:
+      context: ./code
+    volumes:
+      - ../code:/my_code
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - ${SVC_PORT}:${SVC_PORT}
+    depends_on:
+      - topjob_db
+      - topjob_redis
+    env_file: ".env.prod"
+    entrypoint: [ "/bin/bash", "-c", "/entrypoint.sh" ]
+    networks:
+      - topjob_network
+
+  topjob_redis:
+    container_name: topjob_redis
+    image: "redis:alpine"
+    restart: always
+    expose:
+      - ${REDIS_PORT}
+    env_file: ".env.prod"
+    networks:
+      - topjob_network
+
+networks:
+  topjob_network:
+    name: topjob_network
+    driver: bridge
+
+volumes:
+  topjob_pgdata:
+    name: topjob_pgdata

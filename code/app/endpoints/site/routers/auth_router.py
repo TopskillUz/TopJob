@@ -5,10 +5,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from redis.client import Redis
 
 from core.babel_config import _
-from core.config import settings
 from exceptions import CustomValidationError
 from schemas.site import auth_schema
-from schemas.base_schema import TokenType
 from utils.deps import get_redis_client, topskill_login, get_users_me
 from utils.token import Token
 

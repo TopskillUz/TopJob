@@ -1,0 +1,7 @@
+deploy/.env.dev
+deploy/.env.prod
+venv
+.git
+.gitignore
+.idea
+__pycache__

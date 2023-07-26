@@ -42,8 +42,7 @@ def add_middlewares(app):
 
     # Allowed hosts middleware
     app.add_middleware(
-        TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "topskill.uz", "noyabr.uz", "*",
-                                              "https://sayfullayevabdulaziz.jprq.live"]
+        TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "*"]
     )
     # process time middleware
     app.add_middleware(ProcessTimeMiddleware)

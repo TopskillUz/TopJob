@@ -1,6 +1,11 @@
 import enum
 
+from pydantic import BaseModel
 
-class TokenType(str, enum.Enum):
-    ACCESS = "access_token"
-    REFRESH = "refresh_token"
+
+class IBaseModel(BaseModel):
+    class Config:
+        from_attributes = True
+
+
+

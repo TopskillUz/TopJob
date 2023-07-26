@@ -8,7 +8,8 @@ from redis import Redis
 
 from core.babel_config import _
 from core.config import settings
-from schemas.base_schema import TokenType
+from models.enums import TokenType
+
 from utils.minio_client import MinioClient
 from utils.oauth2 import oauth2_scheme
 from utils.token import Token

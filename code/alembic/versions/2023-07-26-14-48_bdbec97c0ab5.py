@@ -1,8 +1,8 @@
 """add models
 
-Revision ID: 4e16e98c2aa5
+Revision ID: bdbec97c0ab5
 Revises: 
-Create Date: 2023-07-24 18:16:17.374231
+Create Date: 2023-07-26 14:48:26.485995
 
 """
 from alembic import op
@@ -13,7 +13,7 @@ from typing import Text # custom added
 
 
 # revision identifiers, used by Alembic.
-revision = '4e16e98c2aa5'
+revision = 'bdbec97c0ab5'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -55,6 +55,7 @@ def upgrade():
     sa.Column('hobbies', sa.String(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=True),
     sa.Column('is_verified', sa.Boolean(), nullable=True),
+    sa.Column('status', sa.Enum('PUBLISH', 'DRAFT', 'TRASH', 'PENDING', 'PRIVATE', name='resumestatusenum'), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
@@ -66,8 +67,9 @@ def upgrade():
     sa.Column('organization_title', sa.String(), nullable=True),
     sa.Column('start_date', sa.Date(), nullable=True),
     sa.Column('end_date', sa.Date(), nullable=True),
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('page', sa.Integer(), nullable=True),
     sa.Column('resume_id', sa.UUID(), nullable=False),
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
@@ -81,8 +83,9 @@ def upgrade():
     sa.Column('end_date', sa.Date(), nullable=True),
     sa.Column('city', sa.String(), nullable=True),
     sa.Column('description', sa.String(), nullable=True),
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('page', sa.Integer(), nullable=True),
     sa.Column('resume_id', sa.UUID(), nullable=False),
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
@@ -96,8 +99,9 @@ def upgrade():
     sa.Column('end_date', sa.Date(), nullable=True),
     sa.Column('city', sa.String(), nullable=True),
     sa.Column('description', sa.String(), nullable=True),
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('page', sa.Integer(), nullable=True),
     sa.Column('resume_id', sa.UUID(), nullable=False),
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
@@ -106,9 +110,10 @@ def upgrade():
     )
     op.create_table('language_block',
     sa.Column('name', sa.String(), nullable=True),
-    sa.Column('level', sa.Enum('BEGINNER', 'INTERMEDIATE', 'PROFICIENT', 'FLUENT', 'NATIVE', name='languagelevelenum'), nullable=True),
+    sa.Column('level', sa.Integer(), nullable=True),
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('page', sa.Integer(), nullable=True),
     sa.Column('resume_id', sa.UUID(), nullable=False),
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
@@ -118,8 +123,10 @@ def upgrade():
     op.create_table('portfolio_link_block',
     sa.Column('title', sa.String(), nullable=True),
     sa.Column('url', sqlalchemy_utils.types.url.URLType(), nullable=True),
+    sa.Column('description', sa.String(), nullable=True),
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('page', sa.Integer(), nullable=True),
     sa.Column('resume_id', sa.UUID(), nullable=False),
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
@@ -128,9 +135,10 @@ def upgrade():
     )
     op.create_table('skill_block',
     sa.Column('name', sa.String(), nullable=True),
-    sa.Column('level', sa.Enum('NOVICE', 'BEGINNER', 'SKILLFUL', 'EXPERIENCED', 'EXPERT', name='skilllevelenum'), nullable=True),
+    sa.Column('level', sa.Integer(), nullable=True),
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('page', sa.Integer(), nullable=True),
     sa.Column('resume_id', sa.UUID(), nullable=False),
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
@@ -140,8 +148,10 @@ def upgrade():
     op.create_table('social_link_block',
     sa.Column('title', sa.String(), nullable=True),
     sa.Column('url', sqlalchemy_utils.types.url.URLType(), nullable=True),
+    sa.Column('description', sa.String(), nullable=True),
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('page', sa.Integer(), nullable=True),
     sa.Column('resume_id', sa.UUID(), nullable=False),
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),

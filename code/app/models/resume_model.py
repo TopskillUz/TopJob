@@ -1,13 +1,14 @@
-import enum
-
 import sqlalchemy as db
-
-from utils.uuid6 import uuid7
-from .base_model import BaseModel
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy_utils import URLType
-from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import Enum
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import validates, relationship
+from sqlalchemy_utils import URLType
+from core.babel_config import _
+from exceptions import CustomValidationError
+from utils.uuid6 import uuid7
+from .base_model import BaseModel, base_validate_level
+from .enums import ResumeStatusEnum
 
 
 class Resume(BaseModel):
@@ -34,24 +35,48 @@ class Resume(BaseModel):
 
     is_active = db.Column(db.Boolean, default=True)
     is_verified = db.Column(db.Boolean, default=False)
+    status = db.Column(Enum(ResumeStatusEnum), default=ResumeStatusEnum.DRAFT)
+
+    educations = relationship('EducationBlock', backref='resume', cascade="all,delete")
+    experiences = relationship('ExperienceBlock', backref='resume', cascade="all,delete")
+    social_links = relationship('SocialLinkBlock', backref='resume', cascade="all,delete")
+    portfolio_links = relationship('PortfolioLinkBlock', backref='resume', cascade="all,delete")
+    courses = relationship('CourseBlock', backref='resume', cascade="all,delete")
+    skills = relationship('SkillBlock', backref='resume', cascade="all,delete")
+    languages = relationship('LanguageBlock', backref='resume', cascade="all,delete")
 
 
 class ResumeBaseBlock(BaseModel):
     __abstract__ = True
 
+    id = db.Column(UUID, primary_key=True, default=uuid7)
+    page = db.Column(db.Integer, default=1)
+
     @declared_attr
     def resume_id(cls):
         return db.Column(UUID, db.ForeignKey("resume.id"), nullable=False)
+
+    @declared_attr
+    def __table_args__(cls):
+        db.CheckConstraint("0 < cls.page AND cls.page <= 10", name='check_page'), {}
+
+    @validates('page')
+    def validate_page(self, key, value):
+        if not 0 < value <= 10:
+            raise CustomValidationError(_("Percent should be greater 0, equal or smaller 10"))
+        return value
 
 
 class SocialLinkBlock(ResumeBaseBlock):
     title = db.Column(db.String)
     url = db.Column(URLType)
+    description = db.Column(db.String)
 
 
 class PortfolioLinkBlock(ResumeBaseBlock):
     title = db.Column(db.String)
     url = db.Column(URLType)
+    description = db.Column(db.String)
 
 
 class EducationBlock(ResumeBaseBlock):
@@ -72,30 +97,22 @@ class ExperienceBlock(ResumeBaseBlock):
     description = db.Column(db.String)
 
 
-class SkillLevelEnum(str, enum.Enum):
-    NOVICE = "novice"
-    BEGINNER = "beginner"
-    SKILLFUL = "skillful"
-    EXPERIENCED = "experienced"
-    EXPERT = "expert"
-
-
 class SkillBlock(ResumeBaseBlock):
     name = db.Column(db.String)
-    level = db.Column(Enum(SkillLevelEnum), default=SkillLevelEnum.NOVICE)
+    level = db.Column(db.Integer, default=10)
 
-
-class LanguageLevelEnum(str, enum.Enum):
-    BEGINNER = "beginner"
-    INTERMEDIATE = "intermediate"
-    PROFICIENT = "proficient"
-    FLUENT = "fluent"
-    NATIVE = "native"
+    @validates('level')
+    def validate_level(self, key, value):
+        return base_validate_level(key, value)
 
 
 class LanguageBlock(ResumeBaseBlock):
     name = db.Column(db.String)
-    level = db.Column(Enum(LanguageLevelEnum), default=LanguageLevelEnum.BEGINNER)
+    level = db.Column(db.Integer, default=10)
+
+    @validates('level')
+    def validate_level(self, key, value):
+        return base_validate_level(key, value)
 
 
 class CourseBlock(ResumeBaseBlock):

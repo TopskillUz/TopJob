@@ -10,7 +10,7 @@ from redis import Redis
 
 from core.babel_config import _
 from core.config import settings
-from schemas.base_schema import TokenType
+from models.enums import TokenType
 
 
 class Token:
