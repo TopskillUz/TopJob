@@ -16,3 +16,4 @@ redis
 requests
 minio
 itsdangerous
+pillow
