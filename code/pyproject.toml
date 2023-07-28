@@ -49,6 +49,7 @@ starlette = "0.27.0"
 typing-extensions = "4.7.1"
 urllib3 = "2.0.4"
 uvicorn = "0.23.1"
+pillow = "^10.0.0"
 
 
 [build-system]

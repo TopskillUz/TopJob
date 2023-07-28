@@ -1,8 +1,8 @@
 """add models
 
-Revision ID: bdbec97c0ab5
+Revision ID: 156b50a8591f
 Revises: 
-Create Date: 2023-07-26 14:48:26.485995
+Create Date: 2023-07-26 19:00:18.128333
 
 """
 from alembic import op
@@ -13,7 +13,7 @@ from typing import Text # custom added
 
 
 # revision identifiers, used by Alembic.
-revision = 'bdbec97c0ab5'
+revision = '156b50a8591f'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -49,7 +49,7 @@ def upgrade():
     sa.Column('nationality', sa.String(), nullable=True),
     sa.Column('driving_license', sa.String(), nullable=True),
     sa.Column('place_of_residence', sa.String(), nullable=True),
-    sa.Column('date_of_birth', sa.Date(), nullable=True),
+    sa.Column('date_of_birth', sa.String(), nullable=True),
     sa.Column('image_id', sa.UUID(), nullable=True),
     sa.Column('professional_summary', sa.Text(), nullable=True),
     sa.Column('hobbies', sa.String(), nullable=True),

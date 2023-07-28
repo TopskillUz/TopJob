@@ -27,7 +27,7 @@ class Resume(BaseModel):
     nationality = db.Column(db.String)
     driving_license = db.Column(db.String)
     place_of_residence = db.Column(db.String)
-    date_of_birth = db.Column(db.Date)
+    date_of_birth = db.Column(db.String)
     image_id = db.Column(UUID, db.ForeignKey('media.id', ondelete="CASCADE"))
 
     professional_summary = db.Column(db.Text)
@@ -44,6 +44,7 @@ class Resume(BaseModel):
     courses = relationship('CourseBlock', backref='resume', cascade="all,delete")
     skills = relationship('SkillBlock', backref='resume', cascade="all,delete")
     languages = relationship('LanguageBlock', backref='resume', cascade="all,delete")
+    image = relationship("Media", foreign_keys=[image_id], backref="resume")
 
 
 class ResumeBaseBlock(BaseModel):

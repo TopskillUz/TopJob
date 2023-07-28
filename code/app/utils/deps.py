@@ -61,6 +61,16 @@ def get_user_data(user_id: UUID | str, access_token: Optional[str] = None) -> di
         return r.json()
 
 
+def get_redis_client() -> Redis:
+    redis_client = redis.from_url(
+        f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}",
+        max_connections=10,
+        encoding="utf8",
+        decode_responses=True,
+    )
+    return redis_client
+
+
 def require_user(perm_title: str):
     def get_current_user(
             request: Request,
@@ -82,7 +92,7 @@ def require_user(perm_title: str):
             raise HTTPException(401, _("Could not validate credentials"))
 
         user_data = get_user_data(user_id=user_id)
-        print(83, user_data)
+
         if not user_data:
             raise HTTPException(401, _('User not exists'))
 
@@ -97,21 +107,14 @@ def require_user(perm_title: str):
     return get_current_user
 
 
-def get_redis_client() -> Redis:
-    redis_client = redis.from_url(
-        f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}",
-        max_connections=10,
-        encoding="utf8",
-        decode_responses=True,
-    )
-    return redis_client
+CurrentUserDep = Annotated[dict, Depends(require_user("read_user"))]
 
 
 def paginated_data_arguments(
-        page_number: Optional[int] = Query(default=1, ge=1),
-        page_size: Optional[int] = Query(default=10, ge=1),
-        order_by: Optional[str] = Query(default='created_at'),
-        desc: Optional[bool] = Query(default=True)
+        page_number: int | None = Query(default=1, ge=1),
+        page_size: int | None = Query(default=10, ge=1),
+        order_by: str | None = Query(default='created_at'),
+        desc: bool | None = Query(default=True)
 ):
     return {
         "page_number": page_number,
@@ -119,6 +122,9 @@ def paginated_data_arguments(
         "order_by": order_by,
         "desc": desc,
     }
+
+
+PaginationDep = Annotated[dict, Depends(paginated_data_arguments)]
 
 
 def list_data_arguments(
@@ -137,12 +143,15 @@ def search_arguments(
     return {"q": q}
 
 
+SearchArgsDep = Annotated[dict, Depends(search_arguments)]
+
+
 def minio_auth() -> MinioClient:
     minio_client = MinioClient(
-        access_key=settings.MINIO_ACCESS_KEY,
-        secret_key=settings.MINIO_SECRET_KEY,
-        bucket_name=settings.MINIO_BUCKET,
-        minio_url=settings.MINIO_URL,
+        access_key=settings.BUCKET_ACCESS_KEY,
+        secret_key=settings.BUCKET_SECRET_KEY,
+        bucket_name=settings.BUCKET_NAME,
+        minio_url=settings.BUCKET_URL,
     )
     return minio_client
 #

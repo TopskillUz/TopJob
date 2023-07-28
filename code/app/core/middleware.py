@@ -42,7 +42,7 @@ def add_middlewares(app):
 
     # Allowed hosts middleware
     app.add_middleware(
-        TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "*"]
+        TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "*", "10.12.0.74"]
     )
     # process time middleware
     app.add_middleware(ProcessTimeMiddleware)

@@ -73,6 +73,56 @@ class Settings(BaseSettings):
             return [i.strip() for i in v.split(",")]
         raise ValueError(v)
 
+    # Minio Client
+    BUCKET_ACCESS_KEY: str
+    BUCKET_SECRET_KEY: str
+    BUCKET_URL: str
+    BUCKET_NAME: str
+
+    SUPPORTED_IMAGE_TYPES: dict = {
+        "image/gif": "gif",
+        "image/jpeg": "jpeg",
+        "image/vnd.microsoft.icon": "ico",
+        "image/pipeg": "jfif",
+        "image/tiff": "tiff",
+        "image/x-icon": "ico",
+        "image/x-png": "png",
+        "image/png": "png",
+        "image/pjpeg": "jpg",
+        "image/apng": "apng",
+        "image/bmp": "bmp",
+        "image/webp": "webp",
+        "image/svg+xml": "svg"
+    }
+    SUPPORTED_FILE_TYPES: dict = {
+        # audio and video
+        "audio/mpeg": "mp3",
+        "video/mp4": "mp4",
+        "video/mpeg": "mpeg",
+        "video/quicktime": "mov",
+        "video/x-msvideo": "avi",
+        "video/x-sgi-movie": "movie",
+        # other
+        "text/plain": "txt",
+        "text/csv": "csv",
+        "text/html": "html",
+        "text/css": "css",
+        "text/javascript": "js",
+        "application/json": "json",
+        "application/pdf": "pdf",
+        "application/vnd.ms-powerpoint": "ppt",
+        "application/msword": "doc",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+        "application/vnd.ms-excel": "xls",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation": "pptx",
+        "application/vnd.rar": "rar",
+        "application/zip": "zip",
+        "application/x-7z-compressed": "7z",
+
+    }
+    SUPPORTED_MEDIA_TYPES: dict = SUPPORTED_FILE_TYPES | SUPPORTED_IMAGE_TYPES
+
     class Config:
         env_file = ENV_FILE_PATH
 

@@ -7,7 +7,7 @@ from .base_model import BaseModel
 
 class Media(BaseModel):
     id = db.Column(UUID, primary_key=True, default=uuid7)
-    filename = db.Column(db.String, nullable=False)
+    filename = db.Column(db.String, nullable=False, unique=True)
     path = db.Column(db.String, nullable=True)
     size = db.Column(db.Integer, nullable=True)
     file_format = db.Column(db.String, nullable=False)

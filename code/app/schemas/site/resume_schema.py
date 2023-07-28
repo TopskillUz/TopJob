@@ -1,10 +1,12 @@
 from typing import Optional
 from uuid import UUID
 
-from schemas.base_schema import IBaseModel
+from schemas.base_schema import IBaseModel, BaseListResponseSchema
 from schemas.site.course_block_schema import ICourseBlockReadSchema
 from schemas.site.education_block_schema import IEducationBlockReadSchema
 from schemas.site.experience_block_schema import IExperienceBlockReadSchema
+from schemas.site.language_block import ILanguageBlockReadSchema
+from schemas.site.media_schema import IMediaShortReadSchema
 from schemas.site.portfolio_link_block import IPortfolioLinkBlockReadSchema
 from schemas.site.skill_block import ISkillBlockReadSchema
 from schemas.site.social_link_block import ISocialLinkBlockReadSchema
@@ -25,7 +27,7 @@ class IResumeReadSchema(IBaseModel):
     driving_license: Optional[str]
     place_of_residence: Optional[str]
     date_of_birth: Optional[str]
-    image_id: Optional[UUID]
+    image: Optional[IMediaShortReadSchema]
 
     professional_summary: Optional[str]
     hobbies: Optional[str]
@@ -35,7 +37,7 @@ class IResumeReadSchema(IBaseModel):
     portfolio_links: list[IPortfolioLinkBlockReadSchema]
     courses: list[ICourseBlockReadSchema]
     skills: list[ISkillBlockReadSchema]
-    languages: list[ISkillBlockReadSchema]
+    languages: list[ILanguageBlockReadSchema]
 
 
 class IResumeUpdateSchema(IBaseModel):
@@ -52,7 +54,6 @@ class IResumeUpdateSchema(IBaseModel):
     driving_license: Optional[str] = None
     place_of_residence: Optional[str] = None
     date_of_birth: Optional[str] = None
-    image_id: Optional[UUID] = None
 
     professional_summary: Optional[str] = None
     hobbies: Optional[str] = None
@@ -62,4 +63,8 @@ class IResumeUpdateSchema(IBaseModel):
     portfolio_links: list[IPortfolioLinkBlockReadSchema] = None
     courses: list[ICourseBlockReadSchema] = None
     skills: list[ISkillBlockReadSchema] = None
-    languages: list[ISkillBlockReadSchema] = None
+    languages: list[ILanguageBlockReadSchema] = None
+
+
+class IListResponseSchema(BaseListResponseSchema):
+    results: list[IResumeReadSchema]
