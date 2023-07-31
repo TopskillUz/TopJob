@@ -66,7 +66,7 @@ def update_resume(
 
         db.session.add(resume)
         db.session.commit()
-    print(resume.social_links[0].url)
+
     return resume
 
 
