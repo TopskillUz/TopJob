@@ -19,10 +19,10 @@ site_app = FastAPI(debug=settings.DEBUG)
 add_handlers(app=admin_app)
 add_handlers(app=site_app)
 
-app.mount(path=f'{settings.API_PREFIX}/topjob/admin/', app=admin_app)
+app.mount(path=f'{settings.API_PREFIX}/admin/topjob', app=admin_app)
 admin_app.include_router(admin_router)
 
-app.mount(path=f'{settings.API_PREFIX}/topjob/site', app=site_app)
+app.mount(path=f'{settings.API_PREFIX}/site/topjob', app=site_app)
 site_app.include_router(site_router)
 
 
