@@ -51,6 +51,7 @@ def update_resume(
 ):
     resume = crud.resume.get_obj(where={Resume.id: resume_id, Resume.is_active: true()})
     data = payload.model_dump(exclude_none=True)
+    print(data['social_links'])
     for key, value in data.items():
         instrumented_attr = getattr(Resume, key)
         if isinstance(instrumented_attr.property, RelationshipProperty):
@@ -65,6 +66,7 @@ def update_resume(
 
         db.session.add(resume)
         db.session.commit()
+    print(resume.social_links[0].url)
     return resume
 
 

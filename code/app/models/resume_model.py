@@ -55,7 +55,7 @@ class ResumeBaseBlock(BaseModel):
 
     @declared_attr
     def resume_id(cls):
-        return db.Column(UUID, db.ForeignKey("resume.id"), nullable=False)
+        return db.Column(UUID, db.ForeignKey("resume.id", ondelete="CASCADE"), nullable=False)
 
     @declared_attr
     def __table_args__(cls):
