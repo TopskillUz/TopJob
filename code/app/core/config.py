@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     API_VERSION: str = "v1"
     API_PREFIX: str = f"/api/{API_VERSION}"
     SVC_PORT: int
-    DEBUG: Optional[int] = False
+    DEBUG: int | str = 0
     TOPSKILL_BASE_URL: Optional[AnyHttpUrl] = "https://topskill.uz"
     TOPSKILL_ADMIN_USERNAME: str
     TOPSKILL_ADMIN_PASSWORD: str
