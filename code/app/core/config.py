@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     API_PREFIX: str = f"/api/{API_VERSION}"
     SVC_PORT: int
     DEBUG: int | str = 0
-    TOPSKILL_BASE_URL: Optional[AnyHttpUrl] = "https://topskill.uz"
+    TOPSKILL_BASE_URL: str = "topskill_backend:8000"
     TOPSKILL_ADMIN_USERNAME: str
     TOPSKILL_ADMIN_PASSWORD: str
     SECRET_KEY: str
