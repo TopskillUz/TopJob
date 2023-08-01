@@ -14,8 +14,8 @@ services:
       - topjob_pgdata:/var/lib/postgresql/data:rw
     expose:
       - ${DATABASE_PORT}
-#    ports:
-#      - "5445:${DATABASE_PORT}"
+    #    ports:
+    #      - "5445:${DATABASE_PORT}"
     networks:
       - topjob_network
 
@@ -50,8 +50,9 @@ services:
 
 networks:
   topjob_network:
-    name: topjob_network
-    driver: bridge
+    name: topskill_network
+    external: true
+
 
 volumes:
   topjob_pgdata:

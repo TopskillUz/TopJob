@@ -1,9 +1,7 @@
 import getpass
 import pathlib
 from typing import Optional, Any
-from uuid import UUID
 
-import requests
 from pydantic import PostgresDsn, field_validator, AnyHttpUrl
 from pydantic_settings import BaseSettings
 
@@ -20,7 +18,7 @@ class Settings(BaseSettings):
     API_PREFIX: str = f"/api/{API_VERSION}"
     SVC_PORT: int
     DEBUG: int | str = 0
-    TOPSKILL_BASE_URL: str = "topskill_backend:8000"
+    TOPSKILL_BASE_URL: AnyHttpUrl = "http://topskill_backend:8000"
     TOPSKILL_ADMIN_USERNAME: str
     TOPSKILL_ADMIN_PASSWORD: str
     SECRET_KEY: str
