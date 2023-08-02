@@ -2,6 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from schemas.base_schema import IBaseModel, BaseListResponseSchema
+from schemas.site.certificate_block_schema import ICertificateBlockReadSchema
 from schemas.site.course_block_schema import ICourseBlockReadSchema
 from schemas.site.education_block_schema import IEducationBlockReadSchema
 from schemas.site.experience_block_schema import IExperienceBlockReadSchema
@@ -33,6 +34,7 @@ class IResumeReadSchema(IBaseModel):
     hobbies: Optional[str]
     educations: list[IEducationBlockReadSchema]
     experiences: list[IExperienceBlockReadSchema]
+    certificates: list[ICertificateBlockReadSchema]
     social_links: list[ISocialLinkBlockReadSchema]
     portfolio_links: list[IPortfolioLinkBlockReadSchema]
     courses: list[ICourseBlockReadSchema]
@@ -59,6 +61,7 @@ class IResumeUpdateSchema(IBaseModel):
     hobbies: Optional[str] = None
     educations: list[IEducationBlockReadSchema] = None
     experiences: list[IExperienceBlockReadSchema] = None
+    # certificates: list[ICertificateBlockReadSchema] = None
     social_links: list[ISocialLinkBlockReadSchema] = None
     portfolio_links: list[IPortfolioLinkBlockReadSchema] = None
     courses: list[ICourseBlockReadSchema] = None

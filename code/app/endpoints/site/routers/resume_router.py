@@ -11,6 +11,7 @@ from sqlalchemy.orm import class_mapper, RelationshipProperty
 import crud
 from models import Resume
 from schemas.site import resume_schema
+from schemas.site.certificate_block_schema import ICertificateBlockReadSchema
 from schemas.site.media_schema import IMediaShortReadSchema
 from utils.deps import minio_auth, paginated_data_arguments, search_arguments, require_user, PaginationDep, \
     SearchArgsDep, CurrentUserDep
@@ -51,7 +52,6 @@ def update_resume(
 ):
     resume = crud.resume.get_obj(where={Resume.id: resume_id, Resume.is_active: true()})
     data = payload.model_dump(exclude_none=True)
-    print(data['social_links'])
     for key, value in data.items():
         instrumented_attr = getattr(Resume, key)
         if isinstance(instrumented_attr.property, RelationshipProperty):
@@ -70,12 +70,30 @@ def update_resume(
     return resume
 
 
-@router.put("/{resume_id}/upload/image", response_model=IMediaShortReadSchema)
+@router.put("/{resume_id}/upload/image", response_model=IMediaShortReadSchema | None)
 def update_resume_image(
         resume_id: UUID,
         minio_client: Annotated[MinioClient, Depends(minio_auth)],
-        image: UploadFile = File(...),
+        image: Annotated[UploadFile, File] = File(None),
 ):
     resume = crud.resume.get_obj(where={Resume.id: resume_id, Resume.is_active: true()})
-    crud.resume.save_image(resume, image, minio_client)
-    return resume.image
+    res = crud.resume.update_image(resume, image, minio_client)
+    return res
+
+
+@router.put("/{resume_id}/certificate/update", response_model=list[ICertificateBlockReadSchema])
+def update_resume_image(
+        resume_id: UUID,
+        minio_client: Annotated[MinioClient, Depends(minio_auth)],
+        names: Annotated[list[str], Form(...)],
+        files: Annotated[list[UploadFile], File(...)]
+):
+    resume = crud.resume.get_obj(where={Resume.id: resume_id, Resume.is_active: true()})
+    for certificate in resume.certificates:
+        db.session.delete(certificate)
+    db.session.commit()
+    for name, file in zip(names[0].split(","), files):
+        obj = crud.certificate.create(create_data={"name": name, "resume_id": resume_id})
+        crud.certificate.update_file(obj, file, minio_client)
+    db.session.refresh(resume)
+    return resume.certificates

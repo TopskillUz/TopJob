@@ -302,44 +302,36 @@ class BaseCrud:
                      db_session: Optional[Session] = None):
         db_session = db_session or db.session
         from . import media
-
+        # save file to minio server
+        data_file = minio_client.put_object(
+            file_path=file_path,
+            file_data=file_data,
+            content_type=content_type,
+        )
         media_id = getattr(obj, field_name, None)
-
         if media_id:
             # update
-            media_obj = media.get(where={Media.id: media_id}, db_session=db_session)
+            media = media.get(where={Media.id: media_id}, db_session=db_session)
             # remove old image from minio
-            minio_client.remove_object(media_obj.path)
-
-            # save file to minio server
-            data_file = minio_client.put_object(
-                file_path=file_path,
-                file_data=file_data,
-                content_type=content_type,
-            )
+            minio_client.remove_object(media.path)
 
             # update media
-            media_obj.file_format = content_type
-            media_obj.size = size
-            media_obj.filename = filename
-            media_obj.path = data_file.file_name
+            media.file_format = content_type
+            media.size = size
+            media.filename = filename
+            media.path = data_file.file_name
 
-            db_session.add(media_obj)
+            db_session.add(media)
         else:
-            # save file to minio server
-            data_file = minio_client.put_object(
-                file_path=file_path,
-                file_data=file_data,
-                content_type=content_type,
-            )
             # create
             media_data = media_schema.IMediaCreateSchema(filename=filename,
                                                          size=size,
                                                          path=data_file.file_name,
-                                                         file_format=content_type)
-            media_obj = media.create(create_data=media_data, db_session=db_session)
+                                                         file_format=content_type,
+                                                         created_by_id=created_by_id)
+            media = media.create(create_data=media_data, db_session=db_session)
 
-            setattr(obj, field_name, media_obj.id)
+            setattr(obj, field_name, media.id)
         try:
             db_session.commit()
         except exc.SQLAlchemyError as e:

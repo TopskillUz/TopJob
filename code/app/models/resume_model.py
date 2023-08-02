@@ -1,12 +1,15 @@
 import sqlalchemy as db
-from sqlalchemy import Enum
+from sqlalchemy import Enum, event
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import validates, relationship
 from sqlalchemy_utils import URLType
+
 from core.babel_config import _
 from exceptions import CustomValidationError
+
 from utils.uuid6 import uuid7
+from .media_model import Media
 from .base_model import BaseModel, base_validate_level
 from .enums import ResumeStatusEnum
 
@@ -39,12 +42,13 @@ class Resume(BaseModel):
 
     educations = relationship('EducationBlock', backref='resume', cascade="all,delete")
     experiences = relationship('ExperienceBlock', backref='resume', cascade="all,delete")
+    certificates = relationship('CertificateBlock', backref='resume', cascade="all,delete")
     social_links = relationship('SocialLinkBlock', backref='resume', cascade="all,delete")
     portfolio_links = relationship('PortfolioLinkBlock', backref='resume', cascade="all,delete")
     courses = relationship('CourseBlock', backref='resume', cascade="all,delete")
     skills = relationship('SkillBlock', backref='resume', cascade="all,delete")
     languages = relationship('LanguageBlock', backref='resume', cascade="all,delete")
-    image = relationship("Media", foreign_keys=[image_id], backref="resume")
+    image = relationship("Media", foreign_keys=[image_id], backref="resume", cascade="all,delete")
 
 
 class ResumeBaseBlock(BaseModel):
@@ -121,3 +125,20 @@ class CourseBlock(ResumeBaseBlock):
     organization_title = db.Column(db.String)
     start_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
+
+
+class CertificateBlock(ResumeBaseBlock):
+    name = db.Column(db.String, nullable=False)
+    file_id = db.Column(UUID, db.ForeignKey('media.id', ondelete="CASCADE"))
+
+    file = relationship("Media", foreign_keys=[file_id], backref="certificate", cascade="all,delete")
+
+
+# @event.listens_for(CertificateBlock, 'after_delete')
+# def check_email_and_phone(mapper, connection, target):
+#     import crud
+#     from utils.deps import minio_auth
+#     if target.file_id:
+#         obj = crud.media.get(where={Media.id: target.file_id})
+#         minio_client = minio_auth()
+#         minio_client.remove_object(obj.path)
