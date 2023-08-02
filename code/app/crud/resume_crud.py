@@ -13,13 +13,12 @@ from .base_crud import BaseCrud, ModelType
 
 
 class ResumeCrud(BaseCrud):
-    def update_image(self, obj, image, minio_client):
-        from . import media
-
+    def update_image(self, obj: ModelType, image: UploadFile | None, minio_client: MinioClient):
         if not image:
             media_id = getattr(obj, 'image_id', None)
 
             if media_id:
+                from . import media
                 # update
                 media_obj = media.get(where={Media.id: media_id})
                 # remove old image from minio
@@ -33,11 +32,12 @@ class ResumeCrud(BaseCrud):
         image_data = modify_image(image=image)
         old_filename, file_ext = get_filename_and_extension(image.filename)
         filename = f"{old_filename}{file_ext}"
+        file_path = f"resumes/user-images/{uuid7()}{file_ext}"
 
         self.upsert_media(
             obj=obj,
             filename=filename,
-            file_path=f"resumes/user-images/{filename}",
+            file_path=file_path,
             field_name="image_id",
             file_data=image_data,
             content_type=image.content_type,
