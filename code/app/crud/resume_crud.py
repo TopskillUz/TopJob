@@ -2,17 +2,38 @@ from io import BytesIO
 
 from fastapi import UploadFile
 from fastapi_sqlalchemy import db
+from sqlalchemy.orm import RelationshipProperty
 from starlette.responses import Response
 
 from core.config import settings
-from models import Media
+from models import Media, Resume
 from utils.minio_client import MinioClient
 from utils.modify_media import check_file_ext, modify_image, get_filename_and_extension
 from utils.uuid6 import uuid7
-from .base_crud import BaseCrud, ModelType
+from .base_crud import BaseCrud, SchemaType, ModelType
 
 
 class ResumeCrud(BaseCrud):
+    @classmethod
+    def update_fields(cls, resume: Resume, payload: SchemaType):
+        data = payload.model_dump(exclude_none=True)
+        for key, value in data.items():
+            instrumented_attr = getattr(Resume, key)
+            if isinstance(instrumented_attr.property, RelationshipProperty):
+                rel_class = instrumented_attr.property.mapper.class_
+                attr = getattr(resume, key)
+                for item in attr:
+                    db.session.delete(item)
+                updated_data = [rel_class(**data) for data in value]
+            else:
+                updated_data = value
+            setattr(resume, key, updated_data)
+
+            db.session.add(resume)
+            db.session.commit()
+        db.session.refresh(resume)
+        return resume
+
     def update_image(self, obj: ModelType, image: UploadFile | None, minio_client: MinioClient):
         if not image:
             media_id = getattr(obj, 'image_id', None)

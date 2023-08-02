@@ -107,7 +107,8 @@ def require_user(perm_title: str):
     return get_current_user
 
 
-CurrentUserDep = Annotated[dict, Depends(require_user("read_user"))]
+def current_user_dep(perm):
+    return Annotated[dict, Depends(require_user(perm))]
 
 
 def paginated_data_arguments(

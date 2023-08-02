@@ -1,20 +1,16 @@
-from typing import Optional, Annotated, Union, Any
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, UploadFile, File, Form, Body
+from fastapi import APIRouter, Depends, UploadFile, File, Form
 from fastapi_sqlalchemy import db
-from pydantic import Json, AfterValidator, BeforeValidator, WrapValidator
-from pydantic_core.core_schema import ValidatorFunctionWrapHandler, ValidationInfo
 from sqlalchemy import true
-from sqlalchemy.orm import class_mapper, RelationshipProperty
 
 import crud
 from models import Resume
 from schemas.site import resume_schema
 from schemas.site.certificate_block_schema import ICertificateBlockReadSchema
 from schemas.site.media_schema import IMediaShortReadSchema
-from utils.deps import minio_auth, paginated_data_arguments, search_arguments, require_user, PaginationDep, \
-    SearchArgsDep, CurrentUserDep
+from utils.deps import minio_auth, PaginationDep, SearchArgsDep, current_user_dep
 from utils.minio_client import MinioClient
 
 router = APIRouter()
@@ -24,7 +20,7 @@ router = APIRouter()
 def get_resume_paginated_list(
         pagination: PaginationDep,
         search_args: SearchArgsDep,
-        current_user: CurrentUserDep
+        current_user: current_user_dep("read_resume")
 ):
     # columns = list(filter(lambda v: not v.endswith("_at"), Resume.__table__.columns.keys()))
     # print(columns)
@@ -38,7 +34,7 @@ def get_resume_paginated_list(
 
 
 @router.get("/{resume_id}", response_model=resume_schema.IResumeReadSchema)
-def get_resume(resume_id: Optional[UUID] = None):
+def get_resume(resume_id: UUID):
     resume = crud.resume.get(where={Resume.id: resume_id, Resume.is_active: true()})
     if not resume:
         resume = crud.resume.create({"id": resume_id})
@@ -51,22 +47,7 @@ def update_resume(
         payload: resume_schema.IResumeUpdateSchema,
 ):
     resume = crud.resume.get_obj(where={Resume.id: resume_id, Resume.is_active: true()})
-    data = payload.model_dump(exclude_none=True)
-    for key, value in data.items():
-        instrumented_attr = getattr(Resume, key)
-        if isinstance(instrumented_attr.property, RelationshipProperty):
-            rel_class = instrumented_attr.property.mapper.class_
-            attr = getattr(resume, key)
-            for item in attr:
-                db.session.delete(item)
-            updated_data = [rel_class(**data) for data in value]
-        else:
-            updated_data = value
-        setattr(resume, key, updated_data)
-
-        db.session.add(resume)
-        db.session.commit()
-
+    resume = crud.resume.update_fields(resume, payload)
     return resume
 
 
