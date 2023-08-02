@@ -27,6 +27,20 @@ def get_certificate(certificate_id: UUID):
     return certificate
 
 
+@router.post("/", response_model=ICertificateBlockReadSchema)
+def create_certificate(
+        minio_client: Annotated[MinioClient, Depends(minio_auth)],
+        resume_id: Annotated[UUID, Form()],
+        name: Annotated[str, Form()],
+        file: Annotated[UploadFile, File()] = None,
+        page: Annotated[int, Form(ge=1)] = 1
+):
+    certificate = crud.certificate.create(create_data={"name": name, "page": page, "resume_id": resume_id})
+    if file:
+        crud.certificate.update_file(certificate, file, minio_client)
+    return certificate
+
+
 @router.put("/{certificate_id}", response_model=ICertificateBlockReadSchema)
 def update_certificate(
         certificate_id: UUID,
