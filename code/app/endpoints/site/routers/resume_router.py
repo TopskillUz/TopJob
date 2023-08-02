@@ -92,7 +92,7 @@ def update_resume_image(
     for certificate in resume.certificates:
         db.session.delete(certificate)
     db.session.commit()
-    for name, file in zip(names[0].split(","), files):
+    for name, file in zip(names, files):
         obj = crud.certificate.create(create_data={"name": name, "resume_id": resume_id})
         crud.certificate.update_file(obj, file, minio_client)
     db.session.refresh(resume)
