@@ -3,10 +3,11 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, UploadFile, File, Form
 from fastapi_sqlalchemy import db
+from pydantic import AnyHttpUrl
 from sqlalchemy import true
 
 import crud
-from models import Resume
+from models import Resume, CertificateBlock, Media
 from schemas.site import resume_schema
 from schemas.site.certificate_block_schema import ICertificateBlockReadSchema
 from schemas.site.media_schema import IMediaShortReadSchema
@@ -67,14 +68,23 @@ def update_resume_image(
         resume_id: UUID,
         minio_client: Annotated[MinioClient, Depends(minio_auth)],
         names: Annotated[list[str], Form(...)],
-        files: Annotated[list[UploadFile], File(...)]
+        files: Annotated[list[UploadFile | str], File(...)]
 ):
     resume = crud.resume.get_obj(where={Resume.id: resume_id, Resume.is_active: true()})
-    for certificate in resume.certificates:
+    certificates = [certificate.id for certificate in resume.certificates]
+
+    for name, file_or_path in zip(names, files):
+        if isinstance(file_or_path, str):
+            media = crud.media.get_obj(where={Media.path: file_or_path})
+            certificate = crud.certificate.get_obj(where={CertificateBlock.file_id: media.id})
+            crud.certificate.update(certificate.id, update_data={"name": name})
+            certificates.remove(certificate.id)
+        else:
+            obj = crud.certificate.create(create_data={"name": name, "resume_id": resume_id})
+            crud.certificate.update_file(obj, file_or_path, minio_client)
+    for certificate_id in certificates:
+        certificate = crud.certificate.get_obj(where={CertificateBlock.id: certificate_id})
         db.session.delete(certificate)
     db.session.commit()
-    for name, file in zip(names, files):
-        obj = crud.certificate.create(create_data={"name": name, "resume_id": resume_id})
-        crud.certificate.update_file(obj, file, minio_client)
     db.session.refresh(resume)
     return resume.certificates
