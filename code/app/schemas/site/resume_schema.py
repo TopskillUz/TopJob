@@ -45,23 +45,23 @@ class IResumeReadSchema(IBaseModel):
 
 
 class IResumeUpdateSchema(IBaseModel):
-    first_name: str = None
-    last_name: str = None
-    email: str = None
-    phone: str = None
-    job_title: str = None
-    country: str = None
-    city: str = None
-    address: str = None
-    zipcode: str = None
-    nationality: str = None
-    driving_license: str = None
-    place_of_residence: str = None
-    date_of_birth: datetime.date = None
+    first_name: str | None = None
+    last_name: str | None = None
+    email: str | None = None
+    phone: str | None = None
+    job_title: str | None = None
+    country: str | None = None
+    city: str | None = None
+    address: str | None = None
+    zipcode: str | None = None
+    nationality: str | None = None
+    driving_license: str | None = None
+    place_of_residence: str | None = None
+    date_of_birth: datetime.date | None = None
     status: ResumeStatusEnum = None
 
-    professional_summary: str = None
-    hobbies: str = None
+    professional_summary: str | None = None
+    hobbies: str | None = None
     educations: list[IEducationBlockReadSchema] = None
     experiences: list[IExperienceBlockReadSchema] = None
     social_links: list[ISocialLinkBlockReadSchema] = None
