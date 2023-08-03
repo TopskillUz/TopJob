@@ -31,11 +31,13 @@ def get_certificate(certificate_id: UUID):
 def create_certificate(
         minio_client: Annotated[MinioClient, Depends(minio_auth)],
         resume_id: Annotated[UUID, Form()],
-        name: Annotated[str, Form()],
-        file: Annotated[UploadFile, File()] = None,
+        name: Annotated[str | None, Form()] = None,
+        file: Annotated[UploadFile | None, File()] = None,
         page: Annotated[int, Form(ge=1)] = 1
 ):
-    certificate = crud.certificate.create(create_data={"name": name, "page": page, "resume_id": resume_id})
+    certificate = crud.certificate.create(create_data={"page": page, "resume_id": resume_id})
+    if name:
+        certificate = crud.certificate.update(certificate.id, update_data={"name": name})
     if file:
         crud.certificate.update_file(certificate, file, minio_client)
     return certificate
@@ -46,7 +48,7 @@ def update_certificate(
         certificate_id: UUID,
         minio_client: Annotated[MinioClient, Depends(minio_auth)],
         name: Annotated[str | None, Form()] = None,
-        file: Annotated[UploadFile, File()] = None,
+        file: Annotated[UploadFile | None, File()] = None,
 ):
     certificate = crud.certificate.get_obj(where={CertificateBlock.id: certificate_id})
     if name:

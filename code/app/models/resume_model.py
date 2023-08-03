@@ -126,7 +126,7 @@ class CourseBlock(ResumeBaseBlock):
 
 
 class CertificateBlock(ResumeBaseBlock):
-    name = db.Column(db.String, nullable=False)
+    name = db.Column(db.String)
     file_id = db.Column(UUID, db.ForeignKey('media.id', ondelete="CASCADE"))
 
     file = relationship("Media", foreign_keys=[file_id], backref="certificate", cascade="all,delete")
