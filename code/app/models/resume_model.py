@@ -1,5 +1,5 @@
 import sqlalchemy as db
-from sqlalchemy import Enum, event
+from sqlalchemy import Enum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import validates, relationship
@@ -7,9 +7,7 @@ from sqlalchemy_utils import URLType
 
 from core.babel_config import _
 from exceptions import CustomValidationError
-
 from utils.uuid6 import uuid7
-from .media_model import Media
 from .base_model import BaseModel, base_validate_level
 from .enums import ResumeStatusEnum
 
@@ -30,7 +28,7 @@ class Resume(BaseModel):
     nationality = db.Column(db.String)
     driving_license = db.Column(db.String)
     place_of_residence = db.Column(db.String)
-    date_of_birth = db.Column(db.String)
+    date_of_birth = db.Column(db.Date)
     image_id = db.Column(UUID, db.ForeignKey('media.id', ondelete="CASCADE"))
 
     professional_summary = db.Column(db.Text)

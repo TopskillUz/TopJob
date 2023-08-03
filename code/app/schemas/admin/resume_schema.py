@@ -1,6 +1,6 @@
 import datetime
-from typing import Optional
 from uuid import UUID
+
 from models.enums import ResumeStatusEnum
 from schemas.base_schema import ABaseModel, BaseListResponseSchema, optional
 from schemas.site.certificate_block_schema import ICertificateBlockReadSchema
@@ -15,23 +15,23 @@ from schemas.site.social_link_block import ISocialLinkBlockReadSchema
 
 
 class AResumeBaseSchema(ABaseModel):
-    first_name: Optional[str]
-    last_name: Optional[str]
-    email: Optional[str]
-    phone: Optional[str]
-    job_title: Optional[str]
-    country: Optional[str]
-    city: Optional[str]
-    address: Optional[str]
-    zipcode: Optional[str]
-    nationality: Optional[str]
-    driving_license: Optional[str]
-    place_of_residence: Optional[str]
-    date_of_birth: Optional[str]
-    image: Optional[IMediaShortReadSchema]
+    first_name: str | None
+    last_name: str | None
+    email: str | None
+    phone: str | None
+    job_title: str | None
+    country: str | None
+    city: str | None
+    address: str | None
+    zipcode: str | None
+    nationality: str | None
+    driving_license: str | None
+    place_of_residence: str | None
+    date_of_birth: datetime.date | None
+    image: IMediaShortReadSchema | None
 
-    professional_summary: Optional[str]
-    hobbies: Optional[str]
+    professional_summary: str | None
+    hobbies: str | None
     educations: list[IEducationBlockReadSchema]
     experiences: list[IExperienceBlockReadSchema]
     certificates: list[ICertificateBlockReadSchema]
@@ -48,11 +48,11 @@ class AResumeBaseSchema(ABaseModel):
 
 class AResumeShortReadSchema(ABaseModel):
     id: UUID
-    first_name: Optional[str]
-    last_name: Optional[str]
-    email: Optional[str]
-    phone: Optional[str]
-    job_title: Optional[str]
+    first_name: str | None
+    last_name: str | None
+    email: str | None
+    phone: str | None
+    job_title: str | None
     is_active: bool
     is_verified: bool
     status: ResumeStatusEnum

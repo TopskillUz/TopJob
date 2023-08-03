@@ -1,11 +1,12 @@
 from typing import Annotated
 from uuid import UUID
-
+from core.babel_config import _
 from fastapi import APIRouter, Depends, UploadFile, File
 from sqlalchemy import true
 
 import crud
-from models import Resume
+from exceptions import CustomValidationError
+from models import Resume, ResumeStatusEnum
 from schemas.site import resume_schema
 from schemas.site.media_schema import IMediaShortReadSchema
 from utils.deps import minio_auth, PaginationDep, SearchArgsDep, current_user_dep
@@ -44,6 +45,10 @@ def update_resume(
         resume_id: UUID,
         payload: resume_schema.IResumeUpdateSchema,
 ):
+    allowed_statuses = [ResumeStatusEnum.DRAFT, ResumeStatusEnum.PRIVATE, ResumeStatusEnum.PENDING]
+    if payload.status not in allowed_statuses:
+        raise CustomValidationError(
+            _("Invalid status. Available Statuses: {statuses}").format(statuses=allowed_statuses))
     resume = crud.resume.get_obj(where={Resume.id: resume_id, Resume.is_active: true()})
     resume = crud.resume.update_fields(resume, payload)
     return resume

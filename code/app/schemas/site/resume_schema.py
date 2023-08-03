@@ -1,6 +1,7 @@
-from typing import Optional
+import datetime
 from uuid import UUID
 
+from models import ResumeStatusEnum
 from schemas.base_schema import IBaseModel, BaseListResponseSchema
 from schemas.site.certificate_block_schema import ICertificateBlockReadSchema
 from schemas.site.course_block_schema import ICourseBlockReadSchema
@@ -15,23 +16,24 @@ from schemas.site.social_link_block import ISocialLinkBlockReadSchema
 
 class IResumeReadSchema(IBaseModel):
     id: UUID
-    first_name: Optional[str]
-    last_name: Optional[str]
-    email: Optional[str]
-    phone: Optional[str]
-    job_title: Optional[str]
-    country: Optional[str]
-    city: Optional[str]
-    address: Optional[str]
-    zipcode: Optional[str]
-    nationality: Optional[str]
-    driving_license: Optional[str]
-    place_of_residence: Optional[str]
-    date_of_birth: Optional[str]
-    image: Optional[IMediaShortReadSchema]
+    first_name: str | None
+    last_name: str | None
+    email: str | None
+    phone: str | None
+    job_title: str | None
+    country: str | None
+    city: str | None
+    address: str | None
+    zipcode: str | None
+    nationality: str | None
+    driving_license: str | None
+    place_of_residence: str | None
+    date_of_birth: datetime.date | None
+    image: IMediaShortReadSchema | None
+    status: ResumeStatusEnum
 
-    professional_summary: Optional[str]
-    hobbies: Optional[str]
+    professional_summary: str | None
+    hobbies: str | None
     educations: list[IEducationBlockReadSchema]
     experiences: list[IExperienceBlockReadSchema]
     certificates: list[ICertificateBlockReadSchema]
@@ -43,25 +45,25 @@ class IResumeReadSchema(IBaseModel):
 
 
 class IResumeUpdateSchema(IBaseModel):
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    job_title: Optional[str] = None
-    country: Optional[str] = None
-    city: Optional[str] = None
-    address: Optional[str] = None
-    zipcode: Optional[str] = None
-    nationality: Optional[str] = None
-    driving_license: Optional[str] = None
-    place_of_residence: Optional[str] = None
-    date_of_birth: Optional[str] = None
+    first_name: str = None
+    last_name: str = None
+    email: str = None
+    phone: str = None
+    job_title: str = None
+    country: str = None
+    city: str = None
+    address: str = None
+    zipcode: str = None
+    nationality: str = None
+    driving_license: str = None
+    place_of_residence: str = None
+    date_of_birth: datetime.date = None
+    status: ResumeStatusEnum = None
 
-    professional_summary: Optional[str] = None
-    hobbies: Optional[str] = None
+    professional_summary: str = None
+    hobbies: str = None
     educations: list[IEducationBlockReadSchema] = None
     experiences: list[IExperienceBlockReadSchema] = None
-    # certificates: list[ICertificateBlockReadSchema] = None
     social_links: list[ISocialLinkBlockReadSchema] = None
     portfolio_links: list[IPortfolioLinkBlockReadSchema] = None
     courses: list[ICourseBlockReadSchema] = None
