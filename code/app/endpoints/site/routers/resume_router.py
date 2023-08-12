@@ -2,7 +2,7 @@ from typing import Annotated
 from uuid import UUID
 from core.babel_config import _
 from fastapi import APIRouter, Depends, UploadFile, File
-from sqlalchemy import true
+from sqlalchemy import true, select
 
 import crud
 from exceptions import CustomValidationError
@@ -19,14 +19,18 @@ router = APIRouter()
 def get_resume_paginated_list(
         pagination: PaginationDep,
         search_args: SearchArgsDep,
-        current_user: current_user_dep("read_resume")
 ):
     # columns = list(filter(lambda v: not v.endswith("_at"), Resume.__table__.columns.keys()))
     # print(columns)
     search_fields = ['first_name', 'last_name', 'email', 'phone', 'job_title', 'country', 'city',
                      'address', 'zipcode', 'nationality', 'driving_license', 'place_of_residence', 'date_of_birth',
                      'professional_summary', 'hobbies']
-    resumes, pagination_data = crud.resume.get_paginated_list(where={Resume.is_active: true()}, **pagination,
+    query = select(Resume).filter(
+        Resume.status == ResumeStatusEnum.PUBLISH
+    ).filter(
+        Resume.is_active == true()
+    )
+    resumes, pagination_data = crud.resume.get_paginated_list(query=query, **pagination,
                                                               **search_args, search_fields=search_fields)
     results = [resume_schema.IResumeReadSchema.model_validate(resume) for resume in resumes]
     return resume_schema.IListResponseSchema(**pagination_data, results=results)

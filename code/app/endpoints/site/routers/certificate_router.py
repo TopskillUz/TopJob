@@ -2,6 +2,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, UploadFile, File, Form, Response
+from pydantic import BaseModel
 
 import crud
 from models import CertificateBlock
@@ -62,3 +63,26 @@ def update_certificate(
 def delete_certificate(certificate_id: UUID):
     crud.certificate.delete(certificate_id)
     return Response(status_code=204)
+
+
+class Item(BaseModel):
+    name: str
+    description: str
+
+
+class FileUpload(BaseModel):
+    files: list[UploadFile]
+
+
+@router.post("/upload/")
+def upload_files_and_json(item: Item, files: FileUpload):
+    # Access the JSON data
+    name = item.name
+    description = item.description
+
+    # Process the uploaded files
+    for file in files.files:
+        file_content = file.read()
+        # Do something with the file_content, like saving it to disk or processing it.
+        print(file_content, name, description)
+    return {"message": "Files and JSON body uploaded successfully."}

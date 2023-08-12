@@ -24,6 +24,7 @@ class TokenType(str, enum.Enum):
 class ResumeStatusEnum(str, enum.Enum):
     PUBLISH = "publish"
     DRAFT = "draft"
-    TRASH = "trash"
     PENDING = "pending"
     PRIVATE = "private"
+    TRASH = "trash"
+
