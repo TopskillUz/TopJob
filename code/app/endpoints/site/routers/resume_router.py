@@ -6,7 +6,7 @@ from sqlalchemy import true, select
 
 import crud
 from exceptions import CustomValidationError
-from models import Resume, ResumeStatusEnum
+from models import Resume, ResumeStatusEnum, SkillBlock
 from schemas.site import resume_schema
 from schemas.site.media_schema import IMediaShortReadSchema
 from utils.deps import minio_auth, PaginationDep, SearchArgsDep, current_user_dep
@@ -25,11 +25,21 @@ def get_resume_paginated_list(
     search_fields = ['first_name', 'last_name', 'email', 'phone', 'job_title', 'country', 'city',
                      'address', 'zipcode', 'nationality', 'driving_license', 'place_of_residence', 'date_of_birth',
                      'professional_summary', 'hobbies']
-    query = select(Resume).filter(
-        Resume.status == ResumeStatusEnum.PUBLISH
-    ).filter(
-        Resume.is_active == true()
+    query = (
+        select(Resume)
+        .filter(
+            Resume.status == ResumeStatusEnum.PUBLISH
+        )
+        .filter(
+            Resume.is_active == true()
+        )
     )
+    if search_args.get("q"):
+        query = query.join(
+            Resume.skills
+        ).filter(
+            SkillBlock.name.ilike(f"%{search_args.get('q')}%")
+        )
     resumes, pagination_data = crud.resume.get_paginated_list(query=query, **pagination,
                                                               **search_args, search_fields=search_fields)
     results = [resume_schema.IResumeReadSchema.model_validate(resume) for resume in resumes]

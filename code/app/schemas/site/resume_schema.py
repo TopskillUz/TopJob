@@ -10,7 +10,7 @@ from schemas.site.experience_block_schema import IExperienceBlockReadSchema
 from schemas.site.language_block import ILanguageBlockReadSchema
 from schemas.site.media_schema import IMediaShortReadSchema
 from schemas.site.portfolio_link_block import IPortfolioLinkBlockReadSchema
-from schemas.site.skill_block import ISkillBlockReadSchema
+from schemas.site.skill_block_schema import ISkillBlockReadSchema
 from schemas.site.social_link_block import ISocialLinkBlockReadSchema
 
 
