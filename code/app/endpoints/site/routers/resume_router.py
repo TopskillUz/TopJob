@@ -1,15 +1,17 @@
 from typing import Annotated
 from uuid import UUID
-from core.babel_config import _
-from fastapi import APIRouter, Depends, UploadFile, File
-from sqlalchemy import true, select
+
+from fastapi import APIRouter, Depends, UploadFile, File, Query
+from sqlalchemy import true, select, or_, func, and_
+from sqlalchemy.orm import contains_eager
 
 import crud
+from core.babel_config import _
 from exceptions import CustomValidationError
 from models import Resume, ResumeStatusEnum, SkillBlock
 from schemas.site import resume_schema
 from schemas.site.media_schema import IMediaShortReadSchema
-from utils.deps import minio_auth, PaginationDep, SearchArgsDep, current_user_dep
+from utils.deps import minio_auth, PaginationDep, SearchArgsDep
 from utils.minio_client import MinioClient
 
 router = APIRouter()
@@ -19,12 +21,16 @@ router = APIRouter()
 def get_resume_paginated_list(
         pagination: PaginationDep,
         search_args: SearchArgsDep,
+        skills: str = Query(None)
 ):
     # columns = list(filter(lambda v: not v.endswith("_at"), Resume.__table__.columns.keys()))
     # print(columns)
     search_fields = ['first_name', 'last_name', 'email', 'phone', 'job_title', 'country', 'city',
                      'address', 'zipcode', 'nationality', 'driving_license', 'place_of_residence', 'date_of_birth',
                      'professional_summary', 'hobbies']
+    q = search_args.get("q")
+    skills = skills.split(",")
+
     query = (
         select(Resume)
         .filter(
@@ -38,10 +44,23 @@ def get_resume_paginated_list(
         query = query.join(
             Resume.skills
         ).filter(
-            SkillBlock.name.ilike(f"%{search_args.get('q')}%")
+            or_(
+                *[getattr(func.lower(getattr(Resume, field)), 'op')("~")(q.lower())
+                  for field in search_fields if q],
+                func.lower(SkillBlock.name).op("~")(search_args.get("q").lower())
+            ),
+
+        ).options(contains_eager(Resume.skills))
+
+    if skills:
+        query = query.join(
+            Resume.skills
+        ).filter(
+            or_(
+                *[func.lower(SkillBlock.name).op("~")(skill.lower()) for skill in skills]
+            )
         )
-    resumes, pagination_data = crud.resume.get_paginated_list(query=query, **pagination,
-                                                              **search_args, search_fields=search_fields)
+    resumes, pagination_data = crud.resume.get_paginated_list(query=query, **pagination)
     results = [resume_schema.IResumeReadSchema.model_validate(resume) for resume in resumes]
     return resume_schema.IListResponseSchema(**pagination_data, results=results)
 
