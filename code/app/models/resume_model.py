@@ -30,7 +30,7 @@ class Resume(BaseModel):
     place_of_residence = db.Column(db.String)
     date_of_birth = db.Column(db.Date)
     image_id = db.Column(UUID, db.ForeignKey('media.id', ondelete="CASCADE"))
-    template_id = db.Column(UUID)
+    template_id = db.Column(db.Integer)
 
     professional_summary = db.Column(db.Text)
     hobbies = db.Column(db.String)

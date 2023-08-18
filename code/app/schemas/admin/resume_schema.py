@@ -29,7 +29,7 @@ class AResumeBaseSchema(ABaseModel):
     place_of_residence: str | None
     date_of_birth: datetime.date | None
     image: IMediaShortReadSchema | None
-    template_id: UUID | None
+    template_id: int | None
 
     professional_summary: str | None
     hobbies: str | None
