@@ -31,6 +31,7 @@ class IResumeReadSchema(IBaseModel):
     date_of_birth: datetime.date | None
     image: IMediaShortReadSchema | None
     status: ResumeStatusEnum
+    template_id: UUID | None
 
     professional_summary: str | None
     hobbies: str | None
@@ -59,6 +60,7 @@ class IResumeUpdateSchema(IBaseModel):
     place_of_residence: str | None = None
     date_of_birth: datetime.date | None = None
     status: ResumeStatusEnum = None
+    template_id: UUID | None
 
     professional_summary: str | None = None
     hobbies: str | None = None
