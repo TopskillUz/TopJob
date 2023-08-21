@@ -19,7 +19,7 @@ class Sphere(BaseModel):
         - Инжинерия
         - Уборка
     """
-    title = db.Column(db.String, nullable=False)
+    title = db.Column(db.String, nullable=False, index=True)
     description = db.Column(db.String)
     is_active = db.Column(db.Boolean, default=True, server_default=db.true())
 
@@ -31,7 +31,7 @@ class Profession(BaseModel):
         - Инженер по компьютерам
         - Уборщик по домам
     """
-    title = db.Column(db.String, nullable=False)
+    title = db.Column(db.String, nullable=False, index=True)
     description = db.Column(db.String)
     parent_id = db.Column(db.Integer, db.ForeignKey("profession.id"), index=True)
     is_default = db.Column(db.Boolean, default=False)
@@ -45,11 +45,11 @@ class Resume(BaseModel):
     user_id = db.Column(UUID)
     profession_id = db.Column(db.Integer, db.ForeignKey("profession.id"), index=True)
 
-    first_name = db.Column(db.String)
-    last_name = db.Column(db.String)
-    email = db.Column(db.String)
-    phone = db.Column(db.String)
-    job_title = db.Column(db.String)
+    first_name = db.Column(db.String, index=True)
+    last_name = db.Column(db.String, index=True)
+    email = db.Column(db.String, index=True)
+    phone = db.Column(db.String, index=True)
+    job_title = db.Column(db.String, index=True)
     country = db.Column(db.String)
     city = db.Column(db.String)
     address = db.Column(db.String)
