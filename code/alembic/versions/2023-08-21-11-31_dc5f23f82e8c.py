@@ -1,8 +1,8 @@
 """add models
 
-Revision ID: 156b50a8591f
+Revision ID: dc5f23f82e8c
 Revises: 
-Create Date: 2023-07-26 19:00:18.128333
+Create Date: 2023-08-21 11:31:07.137407
 
 """
 from alembic import op
@@ -13,7 +13,7 @@ from typing import Text # custom added
 
 
 # revision identifiers, used by Alembic.
-revision = '156b50a8591f'
+revision = 'dc5f23f82e8c'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -32,11 +32,35 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('path')
+    )
+    op.create_table('profession',
+    sa.Column('title', sa.String(), nullable=False),
+    sa.Column('description', sa.String(), nullable=True),
+    sa.Column('parent_id', sa.Integer(), nullable=True),
+    sa.Column('is_default', sa.Boolean(), nullable=True),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['parent_id'], ['profession.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_profession_parent_id'), 'profession', ['parent_id'], unique=False)
+    op.create_table('sphere',
+    sa.Column('title', sa.String(), nullable=False),
+    sa.Column('description', sa.String(), nullable=True),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('deleted_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('resume',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=True),
+    sa.Column('profession_id', sa.Integer(), nullable=True),
     sa.Column('first_name', sa.String(), nullable=True),
     sa.Column('last_name', sa.String(), nullable=True),
     sa.Column('email', sa.String(), nullable=True),
@@ -49,17 +73,33 @@ def upgrade():
     sa.Column('nationality', sa.String(), nullable=True),
     sa.Column('driving_license', sa.String(), nullable=True),
     sa.Column('place_of_residence', sa.String(), nullable=True),
-    sa.Column('date_of_birth', sa.String(), nullable=True),
+    sa.Column('date_of_birth', sa.Date(), nullable=True),
     sa.Column('image_id', sa.UUID(), nullable=True),
+    sa.Column('template_id', sa.Integer(), nullable=True),
     sa.Column('professional_summary', sa.Text(), nullable=True),
     sa.Column('hobbies', sa.String(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=True),
     sa.Column('is_verified', sa.Boolean(), nullable=True),
-    sa.Column('status', sa.Enum('PUBLISH', 'DRAFT', 'TRASH', 'PENDING', 'PRIVATE', name='resumestatusenum'), nullable=True),
+    sa.Column('status', sa.Enum('PUBLISH', 'DRAFT', 'PENDING', 'PRIVATE', 'TRASH', name='resumestatusenum'), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['image_id'], ['media.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['profession_id'], ['profession.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_resume_profession_id'), 'resume', ['profession_id'], unique=False)
+    op.create_table('certificate_block',
+    sa.Column('name', sa.String(), nullable=True),
+    sa.Column('file_id', sa.UUID(), nullable=True),
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('page', sa.Integer(), nullable=True),
+    sa.Column('resume_id', sa.UUID(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['file_id'], ['media.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['resume_id'], ['resume.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('course_block',
@@ -73,7 +113,7 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['resume_id'], ['resume.id'], ),
+    sa.ForeignKeyConstraint(['resume_id'], ['resume.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('education_block',
@@ -89,7 +129,7 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['resume_id'], ['resume.id'], ),
+    sa.ForeignKeyConstraint(['resume_id'], ['resume.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('experience_block',
@@ -105,7 +145,7 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['resume_id'], ['resume.id'], ),
+    sa.ForeignKeyConstraint(['resume_id'], ['resume.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('language_block',
@@ -117,7 +157,7 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['resume_id'], ['resume.id'], ),
+    sa.ForeignKeyConstraint(['resume_id'], ['resume.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('portfolio_link_block',
@@ -130,7 +170,7 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['resume_id'], ['resume.id'], ),
+    sa.ForeignKeyConstraint(['resume_id'], ['resume.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('skill_block',
@@ -142,7 +182,7 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['resume_id'], ['resume.id'], ),
+    sa.ForeignKeyConstraint(['resume_id'], ['resume.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('social_link_block',
@@ -155,7 +195,7 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['resume_id'], ['resume.id'], ),
+    sa.ForeignKeyConstraint(['resume_id'], ['resume.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
@@ -170,6 +210,11 @@ def downgrade():
     op.drop_table('experience_block')
     op.drop_table('education_block')
     op.drop_table('course_block')
+    op.drop_table('certificate_block')
+    op.drop_index(op.f('ix_resume_profession_id'), table_name='resume')
     op.drop_table('resume')
+    op.drop_table('sphere')
+    op.drop_index(op.f('ix_profession_parent_id'), table_name='profession')
+    op.drop_table('profession')
     op.drop_table('media')
     # ### end Alembic commands ###

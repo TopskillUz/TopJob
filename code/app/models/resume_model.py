@@ -2,7 +2,7 @@ import sqlalchemy as db
 from sqlalchemy import Enum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import validates, relationship
+from sqlalchemy.orm import validates, relationship, backref
 from sqlalchemy_utils import URLType
 
 from core.babel_config import _
@@ -12,9 +12,38 @@ from .base_model import BaseModel, base_validate_level
 from .enums import ResumeStatusEnum
 
 
+class Sphere(BaseModel):
+    """
+    class Sphere
+        - Программирование
+        - Инжинерия
+        - Уборка
+    """
+    title = db.Column(db.String, nullable=False)
+    description = db.Column(db.String)
+    is_active = db.Column(db.Boolean, default=True, server_default=db.true())
+
+
+class Profession(BaseModel):
+    """
+    class Profession
+        - Программист
+        - Инженер по компьютерам
+        - Уборщик по домам
+    """
+    title = db.Column(db.String, nullable=False)
+    description = db.Column(db.String)
+    parent_id = db.Column(db.Integer, db.ForeignKey("profession.id"), index=True)
+    is_default = db.Column(db.Boolean, default=False)
+    is_active = db.Column(db.Boolean, default=True, server_default=db.true())
+
+    sub_professions = relationship('Profession', backref=backref('parent', remote_side='Profession.id'))
+
+
 class Resume(BaseModel):
     id = db.Column(UUID, primary_key=True, default=uuid7)
     user_id = db.Column(UUID)
+    profession_id = db.Column(db.Integer, db.ForeignKey("profession.id"), index=True)
 
     first_name = db.Column(db.String)
     last_name = db.Column(db.String)
@@ -131,7 +160,6 @@ class CertificateBlock(ResumeBaseBlock):
     file_id = db.Column(UUID, db.ForeignKey('media.id', ondelete="CASCADE"))
 
     file = relationship("Media", foreign_keys=[file_id], backref="certificate", cascade="all,delete")
-
 
 # @event.listens_for(CertificateBlock, 'after_delete')
 # def check_email_and_phone(mapper, connection, target):
