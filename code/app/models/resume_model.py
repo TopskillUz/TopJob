@@ -24,7 +24,7 @@ class Sphere(BaseModel):
 
 
 class SphereTranslation(BaseModel):
-    sphere_id = db.Column(db.Integer, db.ForeignKey("sphere.id"), index=True)
+    sphere_id = db.Column(db.Integer, db.ForeignKey("sphere.id"), index=True, nullable=False)
     title = db.Column(db.String, nullable=False, index=True)
     description = db.Column(db.String)
 
@@ -46,7 +46,7 @@ class Profession(BaseModel):
 
 
 class ProfessionTranslation(BaseModel):
-    profession_id = db.Column(db.Integer, db.ForeignKey("profession.id"), index=True)
+    profession_id = db.Column(db.Integer, db.ForeignKey("profession.id"), index=True, nullable=False)
     title = db.Column(db.String, nullable=False, index=True)
     description = db.Column(db.String)
 
@@ -54,7 +54,7 @@ class ProfessionTranslation(BaseModel):
 class Resume(BaseModel):
     id = db.Column(UUID, primary_key=True, default=uuid7)
     user_id = db.Column(UUID)
-    profession_id = db.Column(db.Integer, db.ForeignKey("profession.id"), index=True)
+    profession_id = db.Column(db.Integer, db.ForeignKey("profession.id"), index=True, nullable=False)
 
     first_name = db.Column(db.String, index=True)
     last_name = db.Column(db.String, index=True)
