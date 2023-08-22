@@ -17,12 +17,17 @@ def get_profession_paginated_list(
         search_args: SearchArgsDep,
         current_user: current_user_dep("read_profession"),
         is_parent: bool = None,
+        sphere_id: int | None = None
 ):
     query = select(Profession)
-    if is_parent:
-        query = query.filter(Profession.parent_id.is_(None))
-    else:
-        query = query.filter(Profession.parent_id.is_not(None))
+    if sphere_id:
+        query = query.filter(Profession.sphere_id == sphere_id)
+
+    if is_parent is not None:
+        if is_parent:
+            query = query.filter(Profession.parent_id.is_(None))
+        else:
+            query = query.filter(Profession.parent_id.is_not(None))
     professions, pagination_data = crud.profession.get_paginated_list(query=query, **pagination, **search_args,
                                                                       search_fields=["title", "description"])
     results = [profession_schema.AProfessionReadSchema.model_validate(profession) for profession in professions]

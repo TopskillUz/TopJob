@@ -4,11 +4,16 @@ from typing import ForwardRef
 from schemas.base_schema import ABaseModel, BaseListResponseSchema, optional
 
 
-class ABaseProfessionSchema(ABaseModel):
+class AProfessionTranslationSchema(ABaseModel):
     title: str
-    description: str | None
+    description: str | None = None
+
+
+class ABaseProfessionSchema(ABaseModel):
     is_default: bool
     is_active: bool = None
+    translations: list[AProfessionTranslationSchema]
+    sphere_id: int
 
 
 AProfessionReadSchema = ForwardRef('AProfessionReadSchema')

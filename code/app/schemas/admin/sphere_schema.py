@@ -3,10 +3,14 @@ import datetime
 from schemas.base_schema import ABaseModel, BaseListResponseSchema, optional
 
 
-class ABaseSphereSchema(ABaseModel):
+class ASphereTranslation(ABaseModel):
     title: str
-    description: str | None
+    description: str | None = None
+
+
+class ABaseSphereSchema(ABaseModel):
     is_active: bool = None
+    translations: list[ASphereTranslation]
 
 
 class ASphereReadSchema(ABaseSphereSchema):

@@ -108,6 +108,7 @@ class BaseCrud:
             create_data = create_data.model_dump(exclude_unset=True, exclude_none=True)
         if self.i18n_model:
             if 'translations' in create_data and create_data['translations']:
+                print(create_data['translations'])
                 translations = [self.i18n_model(**translation) for translation in create_data['translations']]
             else:
                 translations = []

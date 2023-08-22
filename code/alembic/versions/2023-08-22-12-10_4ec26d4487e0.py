@@ -1,8 +1,8 @@
 """add models
 
-Revision ID: dc5f23f82e8c
+Revision ID: 4ec26d4487e0
 Revises: 
-Create Date: 2023-08-21 11:31:07.137407
+Create Date: 2023-08-22 12:10:51.049148
 
 """
 from alembic import op
@@ -13,7 +13,7 @@ from typing import Text # custom added
 
 
 # revision identifiers, used by Alembic.
-revision = 'dc5f23f82e8c'
+revision = '4ec26d4487e0'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -35,28 +35,55 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('path')
     )
+    op.create_table('sphere',
+    sa.Column('is_active', sa.Boolean(), server_default=sa.text('true'), nullable=True),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('profession',
-    sa.Column('title', sa.String(), nullable=False),
-    sa.Column('description', sa.String(), nullable=True),
-    sa.Column('parent_id', sa.Integer(), nullable=True),
+    sa.Column('sphere_id', sa.Integer(), nullable=True),
+    sa.Column('parent_id', sa.Integer(), nullable=False),
     sa.Column('is_default', sa.Boolean(), nullable=True),
+    sa.Column('is_active', sa.Boolean(), server_default=sa.text('true'), nullable=True),
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['parent_id'], ['profession.id'], ),
+    sa.ForeignKeyConstraint(['sphere_id'], ['sphere.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_profession_parent_id'), 'profession', ['parent_id'], unique=False)
-    op.create_table('sphere',
+    op.create_index(op.f('ix_profession_sphere_id'), 'profession', ['sphere_id'], unique=False)
+    op.create_table('sphere_translation',
+    sa.Column('sphere_id', sa.Integer(), nullable=True),
     sa.Column('title', sa.String(), nullable=False),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['sphere_id'], ['sphere.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_sphere_translation_sphere_id'), 'sphere_translation', ['sphere_id'], unique=False)
+    op.create_index(op.f('ix_sphere_translation_title'), 'sphere_translation', ['title'], unique=False)
+    op.create_table('profession_translation',
+    sa.Column('profession_id', sa.Integer(), nullable=True),
+    sa.Column('title', sa.String(), nullable=False),
+    sa.Column('description', sa.String(), nullable=True),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['profession_id'], ['profession.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_profession_translation_profession_id'), 'profession_translation', ['profession_id'], unique=False)
+    op.create_index(op.f('ix_profession_translation_title'), 'profession_translation', ['title'], unique=False)
     op.create_table('resume',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=True),
@@ -88,6 +115,11 @@ def upgrade():
     sa.ForeignKeyConstraint(['profession_id'], ['profession.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_resume_email'), 'resume', ['email'], unique=False)
+    op.create_index(op.f('ix_resume_first_name'), 'resume', ['first_name'], unique=False)
+    op.create_index(op.f('ix_resume_job_title'), 'resume', ['job_title'], unique=False)
+    op.create_index(op.f('ix_resume_last_name'), 'resume', ['last_name'], unique=False)
+    op.create_index(op.f('ix_resume_phone'), 'resume', ['phone'], unique=False)
     op.create_index(op.f('ix_resume_profession_id'), 'resume', ['profession_id'], unique=False)
     op.create_table('certificate_block',
     sa.Column('name', sa.String(), nullable=True),
@@ -212,9 +244,21 @@ def downgrade():
     op.drop_table('course_block')
     op.drop_table('certificate_block')
     op.drop_index(op.f('ix_resume_profession_id'), table_name='resume')
+    op.drop_index(op.f('ix_resume_phone'), table_name='resume')
+    op.drop_index(op.f('ix_resume_last_name'), table_name='resume')
+    op.drop_index(op.f('ix_resume_job_title'), table_name='resume')
+    op.drop_index(op.f('ix_resume_first_name'), table_name='resume')
+    op.drop_index(op.f('ix_resume_email'), table_name='resume')
     op.drop_table('resume')
-    op.drop_table('sphere')
+    op.drop_index(op.f('ix_profession_translation_title'), table_name='profession_translation')
+    op.drop_index(op.f('ix_profession_translation_profession_id'), table_name='profession_translation')
+    op.drop_table('profession_translation')
+    op.drop_index(op.f('ix_sphere_translation_title'), table_name='sphere_translation')
+    op.drop_index(op.f('ix_sphere_translation_sphere_id'), table_name='sphere_translation')
+    op.drop_table('sphere_translation')
+    op.drop_index(op.f('ix_profession_sphere_id'), table_name='profession')
     op.drop_index(op.f('ix_profession_parent_id'), table_name='profession')
     op.drop_table('profession')
+    op.drop_table('sphere')
     op.drop_table('media')
     # ### end Alembic commands ###

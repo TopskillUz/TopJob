@@ -19,9 +19,14 @@ class Sphere(BaseModel):
         - Инжинерия
         - Уборка
     """
+    is_active = db.Column(db.Boolean, default=True, server_default=db.true())
+    translations = relationship('SphereTranslation', backref='translation', cascade="all,delete")
+
+
+class SphereTranslation(BaseModel):
+    sphere_id = db.Column(db.Integer, db.ForeignKey("sphere.id"), index=True)
     title = db.Column(db.String, nullable=False, index=True)
     description = db.Column(db.String)
-    is_active = db.Column(db.Boolean, default=True, server_default=db.true())
 
 
 class Profession(BaseModel):
@@ -31,13 +36,19 @@ class Profession(BaseModel):
         - Инженер по компьютерам
         - Уборщик по домам
     """
-    title = db.Column(db.String, nullable=False, index=True)
-    description = db.Column(db.String)
+    sphere_id = db.Column(db.Integer, db.ForeignKey("sphere.id"), index=True, nullable=False)
     parent_id = db.Column(db.Integer, db.ForeignKey("profession.id"), index=True)
     is_default = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True, server_default=db.true())
 
     sub_professions = relationship('Profession', backref=backref('parent', remote_side='Profession.id'))
+    translations = relationship('ProfessionTranslation', backref='translation', cascade="all,delete")
+
+
+class ProfessionTranslation(BaseModel):
+    profession_id = db.Column(db.Integer, db.ForeignKey("profession.id"), index=True)
+    title = db.Column(db.String, nullable=False, index=True)
+    description = db.Column(db.String)
 
 
 class Resume(BaseModel):
