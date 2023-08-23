@@ -6,6 +6,7 @@ from schemas.base_schema import ABaseModel, BaseListResponseSchema, optional
 class ASphereTranslation(ABaseModel):
     title: str
     description: str | None = None
+    language_id: int
 
 
 class ABaseSphereSchema(ABaseModel):

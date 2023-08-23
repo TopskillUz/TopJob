@@ -7,6 +7,7 @@ from schemas.base_schema import ABaseModel, BaseListResponseSchema, optional
 class AProfessionTranslationSchema(ABaseModel):
     title: str
     description: str | None = None
+    language_id: int
 
 
 class ABaseProfessionSchema(ABaseModel):
