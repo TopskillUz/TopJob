@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, UploadFile, File, Query
+from fastapi import APIRouter, Depends, UploadFile, File, Query, Body
 from sqlalchemy import true, select, or_, func, and_
 from sqlalchemy.orm import contains_eager
 
@@ -29,7 +29,8 @@ def get_resume_paginated_list(
                      'address', 'zipcode', 'nationality', 'driving_license', 'place_of_residence', 'date_of_birth',
                      'professional_summary', 'hobbies']
     q = search_args.get("q")
-    skills = skills.split(",")
+    if skills:
+        skills = skills.split(",")
 
     query = (
         select(Resume)
@@ -67,9 +68,15 @@ def get_resume_paginated_list(
 
 @router.get("/{resume_id}", response_model=resume_schema.IResumeReadSchema)
 def get_resume(resume_id: UUID):
+    resume = crud.resume.get_obj(where={Resume.id: resume_id, Resume.is_active: true()})
+    return resume
+
+
+@router.post("/create/{resume_id}", response_model=resume_schema.IResumeReadSchema)
+def create_resume(resume_id: UUID, profession_id: Annotated[int, Body(embed=True)]):
     resume = crud.resume.get(where={Resume.id: resume_id, Resume.is_active: true()})
     if not resume:
-        resume = crud.resume.create({"id": resume_id})
+        resume = crud.resume.create({"id": resume_id, "profession_id": profession_id})
     return resume
 
 

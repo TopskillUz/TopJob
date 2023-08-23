@@ -10,6 +10,7 @@ from schemas.site.experience_block_schema import IExperienceBlockReadSchema
 from schemas.site.language_block import ILanguageBlockReadSchema
 from schemas.site.media_schema import IMediaShortReadSchema
 from schemas.site.portfolio_link_block import IPortfolioLinkBlockReadSchema
+from schemas.site.profession_schema import IProfessionReadSchema
 from schemas.site.skill_block_schema import ISkillBlockReadSchema
 from schemas.site.social_link_block import ISocialLinkBlockReadSchema
 
@@ -32,6 +33,7 @@ class IResumeReadSchema(IBaseModel):
     image: IMediaShortReadSchema | None
     status: ResumeStatusEnum
     template_id: int | None
+    profession: IProfessionReadSchema
 
     professional_summary: str | None
     hobbies: str | None
@@ -61,6 +63,7 @@ class IResumeUpdateSchema(IBaseModel):
     date_of_birth: datetime.date | None = None
     status: ResumeStatusEnum = None
     template_id: int | None
+    profession_id: int
 
     professional_summary: str | None = None
     hobbies: str | None = None

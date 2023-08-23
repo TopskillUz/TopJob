@@ -90,6 +90,7 @@ class Resume(BaseModel):
     skills = relationship('SkillBlock', backref='resume', cascade="all,delete")
     languages = relationship('LanguageBlock', backref='resume', cascade="all,delete")
     image = relationship("Media", foreign_keys=[image_id], backref="resume", cascade="all,delete")
+    profession = relationship("Profession", foreign_keys=[profession_id], backref="resume", cascade="all,delete")
 
 
 class ResumeBaseBlock(BaseModel):
