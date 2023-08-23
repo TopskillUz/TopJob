@@ -45,6 +45,12 @@ class Profession(BaseModel):
     sub_professions = relationship('Profession', backref=backref('parent', remote_side='Profession.id'))
     translations = relationship('ProfessionTranslation', backref='translation', cascade="all,delete")
 
+    __table_args__ = (
+        db.Index('only_one_active_is_default', is_default,
+                 unique=True,
+                 postgresql_where=is_default),
+    )
+
 
 class ProfessionTranslation(BaseModel):
     profession_id = db.Column(db.Integer, db.ForeignKey("profession.id"), index=True, nullable=False)

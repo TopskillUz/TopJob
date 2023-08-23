@@ -1,6 +1,6 @@
 from typing import ForwardRef
 
-from schemas.base_schema import IBaseModel
+from schemas.base_schema import IBaseModel, BaseListResponseSchema
 
 
 class IProfessionTranslationSchema(IBaseModel):
@@ -16,4 +16,9 @@ class IProfessionReadSchema(IBaseModel):
     id: int
     translations: list[IProfessionTranslationSchema]
     sphere_id: int
-    parent: IProfessionReadSchema | None
+    sub_professions: list[IProfessionReadSchema]
+    is_default: bool
+
+
+class IListResponseSchema(BaseListResponseSchema):
+    results: list[IProfessionReadSchema]
