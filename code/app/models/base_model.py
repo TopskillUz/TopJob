@@ -41,13 +41,13 @@ BaseModel = declarative_base(cls=BaseModel)
 
 def base_validate_not_negative(key, value):
     if value < 0:
-        raise CustomValidationError(_('Value should not be negative'))
+        raise CustomValidationError(_('{key} value should be negative').format(key=key))
     return value
 
 
 def base_validate_positive(key, value):
     if value <= 0:
-        raise CustomValidationError(_('Value should be positive'))
+        raise CustomValidationError(_('{key} value should be positive').format(key=key))
     return value
 
 

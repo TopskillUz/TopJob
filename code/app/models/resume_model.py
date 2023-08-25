@@ -8,7 +8,7 @@ from sqlalchemy_utils import URLType
 from core.babel_config import _
 from exceptions import CustomValidationError
 from utils.uuid6 import uuid7
-from .base_model import BaseModel, base_validate_level
+from .base_model import BaseModel, base_validate_level, base_validate_positive
 from .enums import ResumeStatusEnum
 
 
@@ -27,7 +27,15 @@ class SphereTranslation(BaseModel):
     sphere_id = db.Column(db.Integer, db.ForeignKey("sphere.id"), index=True, nullable=False)
     title = db.Column(db.String, nullable=False, index=True)
     description = db.Column(db.String)
-    language_id = db.Column(db.Integer, nullable=False, server_default='1')
+    language_id = db.Column(db.Integer, nullable=False)
+
+    __table_args__ = (
+        db.UniqueConstraint('sphere_id', 'language_id'),
+    )
+
+    @validates('language_id')
+    def validate_language_id(self, key, value):
+        return base_validate_positive(key, value)
 
 
 class Profession(BaseModel):
@@ -56,7 +64,15 @@ class ProfessionTranslation(BaseModel):
     profession_id = db.Column(db.Integer, db.ForeignKey("profession.id"), index=True, nullable=False)
     title = db.Column(db.String, nullable=False, index=True)
     description = db.Column(db.String)
-    language_id = db.Column(db.Integer, nullable=False, server_default='1')
+    language_id = db.Column(db.Integer, nullable=False)
+
+    __table_args__ = (
+        db.UniqueConstraint('profession_id', 'language_id'),
+    )
+
+    @validates('language_id')
+    def validate_language_id(self, key, value):
+        return base_validate_positive(key, value)
 
 
 class Resume(BaseModel):

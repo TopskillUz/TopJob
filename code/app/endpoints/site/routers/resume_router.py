@@ -74,10 +74,12 @@ def get_resume(resume_id: UUID):
 
 @router.post("/create/{resume_id}", response_model=resume_schema.IResumeReadSchema)
 def create_resume(resume_id: UUID,
-                  profession_id: Annotated[int, Body(embed=True)],
-                  template_id: Annotated[int, Body(embed=True)]):
+                  profession_id: Annotated[int | None, Body(embed=True)] = None,
+                  template_id: Annotated[int | None, Body(embed=True)] = None):
     resume = crud.resume.get(where={Resume.id: resume_id, Resume.is_active: true()})
     if not resume:
+        if not profession_id or not template_id:
+            raise CustomValidationError(_("profession_id and template_id are required!"))
         resume = crud.resume.create({"id": resume_id, "profession_id": profession_id, "template_id": template_id})
     return resume
 
