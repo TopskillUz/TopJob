@@ -31,7 +31,7 @@ def check_permission(user_data: dict, perm_title: str):
 
 def topskill_login(username: str, password: str, as_admin: Optional[bool] = False) -> dict | None:
     url = f"{settings.TOPSKILL_BASE_URL}api/v1/{'admin' if as_admin else 'site'}/auth/jwt/login"
-    r = requests.post(url, data={
+    r = requests.post(url, verify=False, data={
         "username": username,
         "password": password
     })
@@ -40,7 +40,7 @@ def topskill_login(username: str, password: str, as_admin: Optional[bool] = Fals
 
 
 def get_users_me(access_token: str):
-    r = requests.get(f"{settings.TOPSKILL_BASE_URL}api/v1/site/users/me", headers={
+    r = requests.get(f"{settings.TOPSKILL_BASE_URL}api/v1/site/users/me", verify=False, headers={
         "Authorization": f"Bearer {access_token}"
     })
     if r.status_code == 200 and r.json():
@@ -54,7 +54,7 @@ def get_user_data(user_id: UUID | str, access_token: Optional[str] = None) -> di
                               as_admin=True)
         access_token = data['access_token']
 
-    r = requests.get(f"{settings.TOPSKILL_BASE_URL}api/v1/admin/users/get/{user_id}", headers={
+    r = requests.get(f"{settings.TOPSKILL_BASE_URL}api/v1/admin/users/get/{user_id}", verify=False, headers={
         "Authorization": f"Bearer {access_token}"
     })
     if r.status_code == 200 and r.json():
