@@ -20,11 +20,12 @@ class Sphere(BaseModel):
         - Уборка
     """
     is_active = db.Column(db.Boolean, default=True, server_default=db.true())
+    professions = relationship('Profession', backref='sphere', cascade="all,delete")
     translations = relationship('SphereTranslation', backref='translation', cascade="all,delete")
 
 
 class SphereTranslation(BaseModel):
-    sphere_id = db.Column(db.Integer, db.ForeignKey("sphere.id"), index=True, nullable=False)
+    sphere_id = db.Column(db.Integer, db.ForeignKey("sphere.id", ondelete="CASCADE"), index=True, nullable=False)
     title = db.Column(db.String, nullable=False, index=True)
     description = db.Column(db.String)
     language_id = db.Column(db.Integer, nullable=False)
@@ -45,12 +46,13 @@ class Profession(BaseModel):
         - Инженер по компьютерам
         - Уборщик по домам
     """
-    sphere_id = db.Column(db.Integer, db.ForeignKey("sphere.id"), index=True, nullable=False)
-    parent_id = db.Column(db.Integer, db.ForeignKey("profession.id"), index=True)
+    sphere_id = db.Column(db.Integer, db.ForeignKey("sphere.id", ondelete="CASCADE"), index=True, nullable=False)
+    parent_id = db.Column(db.Integer, db.ForeignKey("profession.id", ondelete="CASCADE"), index=True)
     is_default = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True, server_default=db.true())
 
-    sub_professions = relationship('Profession', backref=backref('parent', remote_side='Profession.id'))
+    sub_professions = relationship('Profession', backref=backref('parent', remote_side='Profession.id'),
+                                   cascade="all,delete")
     translations = relationship('ProfessionTranslation', backref='translation', cascade="all,delete")
 
     __table_args__ = (
@@ -61,7 +63,7 @@ class Profession(BaseModel):
 
 
 class ProfessionTranslation(BaseModel):
-    profession_id = db.Column(db.Integer, db.ForeignKey("profession.id"), index=True, nullable=False)
+    profession_id = db.Column(db.Integer, db.ForeignKey("profession.id", ondelete="CASCADE"), index=True, nullable=False)
     title = db.Column(db.String, nullable=False, index=True)
     description = db.Column(db.String)
     language_id = db.Column(db.Integer, nullable=False)
@@ -78,7 +80,7 @@ class ProfessionTranslation(BaseModel):
 class Resume(BaseModel):
     id = db.Column(UUID, primary_key=True, default=uuid7)
     user_id = db.Column(UUID)
-    profession_id = db.Column(db.Integer, db.ForeignKey("profession.id"), index=True, nullable=False)
+    profession_id = db.Column(db.Integer, db.ForeignKey("profession.id", ondelete="CASCADE"), index=True, nullable=False)
 
     first_name = db.Column(db.String, index=True)
     last_name = db.Column(db.String, index=True)
@@ -101,7 +103,7 @@ class Resume(BaseModel):
 
     is_active = db.Column(db.Boolean, default=True)
     is_verified = db.Column(db.Boolean, default=False)
-    status = db.Column(Enum(ResumeStatusEnum), default=ResumeStatusEnum.DRAFT)
+    status = db.Column(Enum(ResumeStatusEnum), default=ResumeStatusEnum.DRAFT, nullable=False)
 
     educations = relationship('EducationBlock', backref='resume', cascade="all,delete")
     experiences = relationship('ExperienceBlock', backref='resume', cascade="all,delete")
@@ -112,7 +114,7 @@ class Resume(BaseModel):
     skills = relationship('SkillBlock', backref='resume', cascade="all,delete")
     languages = relationship('LanguageBlock', backref='resume', cascade="all,delete")
     image = relationship("Media", foreign_keys=[image_id], backref="resume", cascade="all,delete")
-    profession = relationship("Profession", foreign_keys=[profession_id], backref="resume", cascade="all,delete")
+    profession = relationship("Profession", foreign_keys=[profession_id], backref=backref("resume", cascade="all,delete"))
 
 
 class ResumeBaseBlock(BaseModel):

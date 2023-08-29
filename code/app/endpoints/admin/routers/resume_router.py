@@ -17,7 +17,7 @@ def get_resume_paginated_list(
         current_user: current_user_dep("read_resume")
 ):
     search_fields = ['first_name', 'last_name', 'email', 'phone', 'job_title', 'country', 'city',
-                     'address', 'zipcode', 'nationality', 'driving_license', 'place_of_residence', 'date_of_birth',
+                     'address', 'zipcode', 'nationality', 'driving_license', 'place_of_residence',
                      'professional_summary', 'hobbies']
     resumes, pagination_data = crud.resume.get_paginated_list(**pagination, **search_args, search_fields=search_fields)
     results = [resume_schema.AResumeReadSchema.model_validate(resume) for resume in resumes]

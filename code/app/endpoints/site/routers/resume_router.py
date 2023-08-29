@@ -21,16 +21,13 @@ router = APIRouter()
 def get_resume_paginated_list(
         pagination: PaginationDep,
         search_args: SearchArgsDep,
-        skills: str = Query(None)
+        profession_id: Annotated[int, Query()] = None
 ):
     # columns = list(filter(lambda v: not v.endswith("_at"), Resume.__table__.columns.keys()))
     # print(columns)
-    search_fields = ['first_name', 'last_name', 'email', 'phone', 'job_title', 'country', 'city',
-                     'address', 'zipcode', 'nationality', 'driving_license', 'place_of_residence', 'date_of_birth',
+    search_fields = ['first_name', 'last_name', 'email', 'phone', 'job_title',
                      'professional_summary', 'hobbies']
-    q = search_args.get("q")
-    if skills:
-        skills = skills.split(",")
+    q = search_args["q"] or ""
 
     query = (
         select(Resume)
@@ -41,26 +38,27 @@ def get_resume_paginated_list(
             Resume.is_active == true()
         )
     )
-    if search_args.get("q"):
-        query = query.join(
-            Resume.skills
-        ).filter(
+    if q:
+        query = query.filter(
             or_(
                 *[getattr(func.lower(getattr(Resume, field)), 'op')("~")(q.lower())
-                  for field in search_fields if q],
-                func.lower(SkillBlock.name).op("~")(search_args.get("q").lower())
-            ),
-
-        ).options(contains_eager(Resume.skills))
-
-    if skills:
-        query = query.join(
-            Resume.skills
-        ).filter(
-            or_(
-                *[func.lower(SkillBlock.name).op("~")(skill.lower()) for skill in skills]
+                  for field in search_fields if q]
             )
         )
+
+    if profession_id:
+        query = query.filter(
+            Resume.profession_id == profession_id
+        )
+
+    # if skills:
+    #     query = query.join(
+    #         Resume.skills
+    #     ).filter(
+    #         or_(
+    #             *[func.lower(SkillBlock.name).op("~")(skill.lower()) for skill in skills]
+    #         )
+    #     )
     resumes, pagination_data = crud.resume.get_paginated_list(query=query, **pagination)
     results = [resume_schema.IResumeReadSchema.model_validate(resume) for resume in resumes]
     return resume_schema.IListResponseSchema(**pagination_data, results=results)

@@ -28,8 +28,7 @@ def get_profession_paginated_list(
             query = query.filter(Profession.parent_id.is_(None))
         else:
             query = query.filter(Profession.parent_id.is_not(None))
-    professions, pagination_data = crud.profession.get_paginated_list(query=query, **pagination, **search_args,
-                                                                      search_fields=["title", "description"])
+    professions, pagination_data = crud.profession.get_paginated_list(query=query, **pagination, **search_args)
     results = [profession_schema.AProfessionReadSchema.model_validate(profession) for profession in professions]
     return profession_schema.AListResponseSchema(**pagination_data, results=results)
 
