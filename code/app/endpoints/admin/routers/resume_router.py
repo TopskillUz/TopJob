@@ -1,9 +1,11 @@
+from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Response
+from sqlalchemy import select
 
 import crud
-from models import Resume
+from models import Resume, ResumeStatusEnum
 from schemas.admin import resume_schema
 from utils.deps import PaginationDep, SearchArgsDep, current_user_dep
 
@@ -14,12 +16,15 @@ router = APIRouter()
 def get_resume_paginated_list(
         pagination: PaginationDep,
         search_args: SearchArgsDep,
-        current_user: current_user_dep("read_resume")
+        current_user: current_user_dep("read_resume"),
+        status: Optional[ResumeStatusEnum] = ResumeStatusEnum.PENDING
 ):
     search_fields = ['first_name', 'last_name', 'email', 'phone', 'job_title', 'country', 'city',
                      'address', 'zipcode', 'nationality', 'driving_license', 'place_of_residence',
                      'professional_summary', 'hobbies']
-    resumes, pagination_data = crud.resume.get_paginated_list(**pagination, **search_args, search_fields=search_fields)
+    query = select(Resume).filter(Resume.status == status)
+    resumes, pagination_data = crud.resume.get_paginated_list(query=query, search_fields=search_fields, **pagination,
+                                                              **search_args)
     results = [resume_schema.AResumeReadSchema.model_validate(resume) for resume in resumes]
     return resume_schema.AListResponseSchema(**pagination_data, results=results)
 

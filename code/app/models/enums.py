@@ -27,4 +27,5 @@ class ResumeStatusEnum(str, enum.Enum):
     PENDING = "pending"
     PRIVATE = "private"
     TRASH = "trash"
+    REJECT = 'reject'
 
